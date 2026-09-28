@@ -1,0 +1,30 @@
+{
+  "name": "pi-privacy-guard",
+  "version": "0.1.0",
+  "description": "Model-scoped best-effort tool friction and prompt advisory for Pi.",
+  "license": "MIT",
+  "author": "Michael Brunner",
+  "type": "module",
+  "engines": { "node": ">=24.0.0" },
+  "keywords": ["pi-package", "pi", "privacy"],
+  "files": [
+    "privacy-guard.ts",
+    "README.md",
+    "LICENSE",
+    "docs/ai/privacy-guard.md"
+  ],
+  "pi": { "extensions": ["./privacy-guard.ts"] },
+  "scripts": {
+    "test": "node --test *.test.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.86.1",
+    "@types/node": "^24.0.0",
+    "typescript": "~5.9.3"
+  }
+}
