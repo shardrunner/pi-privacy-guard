@@ -10,10 +10,16 @@ security boundary.
 Requires **Pi 0.87.1+** and **Node.js 24+**. Development dependencies pin 0.87.1;
 newer Pi versions are intended targets, not a guarantee against upstream API changes.
 
-Clone this repository and register the checkout as a local Pi package:
+Install from GitHub; Pi clones it and `pi update --extensions` keeps it current:
 
 ```sh
-pi install /absolute/path/to/privacy-guard
+pi install git:github.com/shardrunner/pi-privacy-guard
+```
+
+For development, register a local checkout instead:
+
+```sh
+pi install /absolute/path/to/pi-privacy-guard
 ```
 
 Pi loads a local package in place (no copy) and this package has no runtime
