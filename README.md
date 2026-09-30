@@ -41,8 +41,11 @@ override per field. Each project field replaces the corresponding global field.
 }
 ```
 
-- `models` match full `provider/model` IDs, bare IDs, or slash-delimited
-  suffixes (case-sensitive; no wildcards).
+- `models` match the selected model (`ctx.model`) by full `provider/model` ID,
+  bare ID, or slash-delimited suffix (case-sensitive; no wildcards). For virtual
+  models, include the selected virtual ID (e.g. `router/auto`); entries for its
+  routed physical models alone do not cover that selection. This is not a
+  physical-provider policy.
 - `paths` accept `~`, `@`, absolute, and session-relative forms; absolute paths
   are recommended for global settings.
 - `keywords` are case-insensitive substrings of tool input, including nested
@@ -61,6 +64,12 @@ automatic context, or provider payloads. Other custom tools and subagents are
 intentionally outside its scope. The ff tools are matched by name only: no
 imports, registration, discovery, or installed dependency is required, and their
 absence has no effect.
+
+In Pi 0.99.0, codemode's nested calls to covered tools use the existing guard
+hooks. MCP tools (`mcp__<server>__<tool>`) and resource tools
+(`list_mcp_resources`, `list_mcp_resource_templates`, `read_mcp_resource`) are
+not covered, whether called directly or through codemode. Codemode itself is
+not filtered or treated as a privacy sandbox by this guard.
 
 `grep`, `find`, `ffgrep`, and `fffind` are conservatively blocked when their
 search root contains a protected directory, including an omitted path. They do

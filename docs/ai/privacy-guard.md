@@ -8,6 +8,8 @@ read_when:
 
 `privacy-guard.ts` adds best-effort friction against ordinary built-in and optional `ffgrep`/`fffind` tool access, not a security boundary. It does not filter existing conversation history, attachments, automatic context, or provider payloads. Other custom tools and subagents are intentionally outside its scope. The ff tools are matched by name only: no imports, registration, discovery, or installed dependency is required, and their absence has no effect.
 
+In Pi 0.99.0, nested codemode calls to covered tools go through the existing `tool_call` hook. MCP tools (`mcp__<server>__<tool>`) and resource tools (`list_mcp_resources`, `list_mcp_resource_templates`, `read_mcp_resource`) are outside coverage, directly or through codemode. The guard does not filter codemode itself or provide a privacy sandbox.
+
 Configure `privacyGuard` in agent `settings.json`, or trusted project `.pi/settings.json`:
 
 ```json
@@ -21,6 +23,8 @@ Configure `privacyGuard` in agent `settings.json`, or trusted project `.pi/setti
 ```
 
 Each project field replaces the corresponding global field. Missing fields default to empty arrays; empty arrays explicitly disable that field. Models match full provider/model IDs, bare IDs, or slash-delimited suffixes (case-sensitive; no wildcards). Keywords are case-insensitive substrings of tool input, including nested edit arguments. Keywords also supply the short model advisory; paths are not added to that advisory.
+
+Model matching uses the selection in `ctx.model`, not the routed physical model. To restrict a virtual selection, include its virtual ID (e.g. `router/auto`) in `models`; matching only its physical targets does not cover that selection. This is not a physical-provider policy.
 
 Settings are loaded and validated once per agent run, refreshed on the next user prompt or cwd/trust change. Invalid configuration reports its filename rather than silently disabling protection. A cached configuration error also rejects subsequent covered tool calls. No file watching, subprocesses, or per-call settings reads.
 
