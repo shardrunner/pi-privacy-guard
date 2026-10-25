@@ -1,5 +1,7 @@
 # pi-privacy-guard
 
+> **Disclaimer:** This extension is vibe coded. Use at your own risk.
+
 Model-scoped best-effort friction against ordinary built-in and optional
 `ffgrep`/`fffind` tool access to protected paths in [Pi](https://pi.dev), plus
 a short advisory guideline for the listed models. Inert without settings. Not a
