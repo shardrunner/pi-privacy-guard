@@ -2,36 +2,46 @@
 
 > **Disclaimer:** This extension is vibe coded for personal use. Use at your own risk.
 
-Add friction against accidental access to sensitive paths when using selected
-models in [Pi](https://pi.dev). Checks ordinary built-in and optional
-`ffgrep`/`fffind` tool calls against configured paths and keywords, and adds a
-short advisory guideline. Inert without settings. **Not a security boundary.**
+Make it harder for selected models in [Pi](https://pi.dev) to read sensitive paths by
+accident. Tool calls are checked against configured paths and keywords, and the model
+gets a short reminder in its prompt. **This is not a security boundary.**
 
-## Install
+## Why
 
-Requires **Pi 0.87.1+** and **Node.js 24+**. Development dependencies pin 0.87.1;
-newer Pi versions are intended targets, not a guarantee against upstream API changes.
+- Coding agents explore the filesystem on their own and can wander into private directories by accident.
+- Some models may see everything while others shouldn't, so the guard applies only to the models you choose.
 
-Install from GitHub; Pi clones it and `pi update --extensions` keeps it current:
+## Features
+
+- Only applies to the models you list.
+- Blocks built-in tool calls (and the optional `ffgrep`/`fffind` tools) that touch
+  protected paths or contain protected keywords.
+- Adds a short note about protected topics to the system prompt.
+- Global settings with per-field overrides for trusted projects. Does nothing until
+  configured.
+
+## Installation
+
+Requires **Pi 0.87.1+** and **Node.js 24+**.
 
 ```sh
 pi install git:github.com/shardrunner/pi-privacy-guard
 ```
 
-For development, register a local checkout instead:
+Run `/reload` in open Pi sessions. Update with `pi update --extensions`.
+For local development, install a checkout instead
+(`pi install /absolute/path/to/pi-privacy-guard`). No runtime dependencies, no build step.
 
-```sh
-pi install /absolute/path/to/pi-privacy-guard
-```
+## Usage
 
-Pi loads a local package in place (no copy) and this package has no runtime
-dependencies, so no `npm install` is needed to use it. Run `/reload` in existing
-Pi instances.
+Add models, paths and keywords to your settings (see below). From the next agent run
+onward, covered tool calls by listed models are checked. Calls that touch protected paths or
+keywords are blocked, and the model gets a short reason telling it not to retry.
 
-## Configure
+## Configuration
 
-Global `~/.pi/agent/settings.json`, optional trusted-project `.pi/settings.json`
-override per field. Each project field replaces the corresponding global field.
+Add settings to the global `~/.pi/agent/settings.json`. In a trusted project's
+`.pi/settings.json`, each field you set replaces the global one.
 
 ```json
 {
@@ -43,45 +53,35 @@ override per field. Each project field replaces the corresponding global field.
 }
 ```
 
-- `models` match the selected model (`ctx.model`) by full `provider/model` ID,
-  bare ID, or slash-delimited suffix (case-sensitive; no wildcards). For virtual
-  models, include the selected virtual ID (e.g. `router/auto`); entries for its
-  routed physical models alone do not cover that selection. This is not a
-  physical-provider policy.
-- `paths` accept `~`, `@`, absolute, and session-relative forms; absolute paths
-  are recommended for global settings.
-- `keywords` are case-insensitive substrings of tool input, including nested
-  edit arguments, and supply the short model advisory; paths are not added to
-  that advisory.
+- `models`: matched against the selected model by full `provider/model` ID, bare ID or
+  slash-separated suffix (case-sensitive, no wildcards). For virtual models, list the
+  virtual ID itself (e.g. `router/auto`); listing only the models it routes to does not
+  cover it.
+- `paths`: `~`, `@`, absolute or session-relative paths. Use absolute paths in global
+  settings.
+- `keywords`: case-insensitive substrings matched against tool input, including nested
+  edit arguments. Keywords also go into the model reminder; paths do not.
 
-Missing fields default to empty arrays; empty arrays explicitly disable that
-field. Invalid configuration reports its filename rather than silently
-disabling protection. Settings are loaded and validated once per agent run,
-refreshed on the next user prompt or cwd/trust change.
+Missing fields count as empty, and an empty array turns that field off. Invalid
+settings are reported with the file name instead of quietly turning protection off.
+Settings are loaded once per agent run and reloaded on the next prompt or when the
+working directory or trust changes.
 
-## Scope and limits
+## Behavior and limitations
 
-This guard does not filter existing conversation history, attachments,
-automatic context, or provider payloads. Other custom tools and subagents are
-intentionally outside its scope. The ff tools are matched by name only: no
-imports, registration, discovery, or installed dependency is required, and their
-absence has no effect.
+- Not covered: existing conversation history, attachments, automatic context, provider
+  payloads, other custom tools, subagents and MCP tools (whether called directly or
+  through codemode). Codemode's nested calls to covered tools are checked.
+- `grep`, `find`, `ffgrep` and `fffind` are blocked if their search root contains a
+  protected directory, including when no path is given. Exclusions are ignored. `ls`
+  only checks its target.
+- `bash` and `powershell` only get substring checks and are blocked if the working
+  directory itself is protected. Indirect commands, variables, globs, scripts and
+  alternate spellings can get around this.
+- Filesystem races and files newly created through symlinked parent directories are not
+  handled.
 
-In Pi 0.99.0, codemode's nested calls to covered tools use the existing guard
-hooks. MCP tools (`mcp__<server>__<tool>`) and resource tools
-(`list_mcp_resources`, `list_mcp_resource_templates`, `read_mcp_resource`) are
-not covered, whether called directly or through codemode. Codemode itself is
-not filtered or treated as a privacy sandbox by this guard.
-
-`grep`, `find`, `ffgrep`, and `fffind` are conservatively blocked when their
-search root contains a protected directory, including an omitted path. They do
-not interpret exclusions; ff path globs check the literal directory prefix
-before the first wildcard/brace, and bare filename filters use cwd. `ls` only
-checks whether its target is protected. `bash` and `powershell` use substring
-checks and are blocked when cwd itself is protected: indirect commands,
-variables, globbing, scripts, and alternate spellings can bypass them.
-Filesystem races and newly created files through symlink parents are not
-hardened. See [the design note](docs/ai/privacy-guard.md).
+See the [design note](docs/ai/privacy-guard.md) for details.
 
 ## Development
 
@@ -91,9 +91,10 @@ npm run check
 npm pack --dry-run
 ```
 
-The small offline suite exercises the extension handlers with mocked
-Pi/configuration/filesystem APIs, without invoking a provider. Only the entry
-point, README, license, and design note ship. No build step is needed; Pi
-supplies its SDK at runtime.
+Requires Node.js 24+. The offline test suite runs the extension with mocked Pi,
+settings and filesystem APIs and makes no provider calls. Only the entry point, README,
+license and design note are published.
 
-[MIT](LICENSE) © 2026 Michael Brunner.
+## License
+
+[MIT](LICENSE) © 2026 Michael Brunner
