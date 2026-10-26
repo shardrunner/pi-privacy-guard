@@ -1,5 +1,7 @@
 # pi-privacy-guard
 
+> **Disclaimer:** This extension is vibe coded for personal use. Use at your own risk.
+
 Add friction against accidental access to sensitive paths when using selected
 models in [Pi](https://pi.dev). Checks ordinary built-in and optional
 `ffgrep`/`fffind` tool calls against configured paths and keywords, and adds a
@@ -80,11 +82,6 @@ checks and are blocked when cwd itself is protected: indirect commands,
 variables, globbing, scripts, and alternate spellings can bypass them.
 Filesystem races and newly created files through symlink parents are not
 hardened. See [the design note](docs/ai/privacy-guard.md).
-
-## Project status
-
-Developed with AI assistance for personal use. Provided as-is, without support or
-compatibility guarantees. Review the source and documented limitations before use.
 
 ## Development
 
