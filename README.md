@@ -8,8 +8,8 @@ gets a short reminder in its prompt. **This is not a security boundary.**
 
 ## Why
 
-- Coding agents explore the filesystem on their own and can wander into private directories by accident.
-- Some models may see everything while others shouldn't, so the guard applies only to the models you choose.
+- Some hosted models may train on your data, or you simply don't trust them to stay out of secrets and sensitive files.
+- Coding agents explore the filesystem on their own, so they can reach those files by accident. The guard adds friction only for the models you list.
 
 ## Features
 
